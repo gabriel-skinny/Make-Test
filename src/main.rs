@@ -17,9 +17,12 @@ fn handling_arguments() -> Result<String, Error>{
         return Err(Error::new(ErrorKind::Other,"too little arguments"));
     }
 
-    for arg in env::args() {
-        if arg == "-file" {
-            return Ok(env::args().next().unwrap());
+    let mut args = env::args();
+
+    for index in 0..args.len() {
+        println!("command: {}", args.nth(index).unwrap());
+        if args.nth(index).unwrap() == "-file" {
+            return Ok(args.nth(index).unwrap());
         }
     }
     
@@ -30,6 +33,9 @@ fn handling_arguments() -> Result<String, Error>{
 fn main() -> Result<(), Error> {
 
     let file_name = handling_arguments()?;
+
+    println!("File name: {}", file_name);
+
     let content = read_file(&file_name).expect("Should return file content");
     
 
