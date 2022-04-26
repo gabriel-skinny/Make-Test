@@ -12,25 +12,28 @@ fn read_file(file_name: &str) -> Result<String, Error>{
     Ok(contents)
 }
 
-fn handling_arguments() -> Result<(), Error>{
-    if env::args().len() > 2 {
+fn handling_arguments() -> Result<String, Error>{
+    if env::args().len() < 2 {
         return Err(Error::new(ErrorKind::Other,"too little arguments"));
     }
 
     for arg in env::args() {
         if arg == "-file" {
-            return Ok(());
+            return Ok(env::args().next().unwrap());
         }
     }
     
-    Err(Error::new(ErrorKind::Other,"Unkwung command"))
+    Err(Error::new(ErrorKind::Other,"Unkown command"))
 }
 
 
-fn main() {
-    let content = read_file("./teste.txt").expect("Should return file content");
+fn main() -> Result<(), Error> {
+
+    let file_name = handling_arguments()?;
+    let content = read_file(&file_name).expect("Should return file content");
     
-    handling_arguments();
 
     println!("File: \n {}", content);
+
+    Ok(())
 }
