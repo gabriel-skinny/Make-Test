@@ -28,11 +28,25 @@ fn handling_arguments() -> Result<String, Error>{
     Err(Error::new(ErrorKind::Other,"Unkown command"))
 }
 
+fn find_word_in_string(word: &str, content: &str) -> usize {
+  let limit_count = 0;
+
+   for letter in content.chars() {
+       for limit_letter in word {
+            if limit_letter == letter {
+
+            }
+       }
+   }
+    
+}
 
 fn main() -> Result<(), Error> {
 
     let file_name = handling_arguments()?;
     let content = read_file(&file_name).expect("Should return file content");
+
+    find_word_in_string("function", &content);
 
     println!("File: \n {}", content);
 
