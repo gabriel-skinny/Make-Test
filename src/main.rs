@@ -1,16 +1,30 @@
 use std::fs::File;
 use std::io::{BufReader, Read, Error, ErrorKind};
 use std::env;
+use std::process::Command;
+use std::str;
 
-fn read_file(file_name: &str) -> Result<String, Error>{
-    let read_file = File::open(file_name)?;
-
-    let mut buff_read = BufReader::new(read_file);
+fn read_file(file_path: &str) -> Result<String, Error>{
+    let file = File::open(file_path.trim())?;
+    
+    let mut buffer_read = BufReader::new(file); 
     let mut contents = String::new();
-    buff_read.read_to_string(&mut contents)?;
+
+    buffer_read.read_to_string(&mut contents)?;
     
     Ok(contents)
 }
+
+fn find_file(file_name: &str) -> String {
+   let find_file = Command::new("/bin/find")
+                            .arg("-name")
+                            .arg(file_name)
+                            .output()
+                            .expect("Could found file"); 
+
+   str::from_utf8(&find_file.stdout).unwrap().to_string()
+}
+
 
 fn handling_arguments() -> Result<String, Error>{
     if env::args().len() < 2 {
@@ -29,22 +43,30 @@ fn handling_arguments() -> Result<String, Error>{
 }
 
 fn find_word_in_string(word: &str, content: &str) -> usize {
-  let limit_count = 0;
+  let mut limit_count = 0;
 
    for letter in content.chars() {
-       for limit_letter in word {
+       for limit_letter in word.chars() {
             if limit_letter == letter {
-
+                limit_count += 1;
+            } else {
+                limit_count = 0;
             }
+
+            if limit_count >= word.len() {
+            
+            }
+
        }
    }
-    
+
+   14
 }
 
 fn main() -> Result<(), Error> {
-
     let file_name = handling_arguments()?;
-    let content = read_file(&file_name).expect("Should return file content");
+    let file_path = find_file(&file_name);
+    let content = read_file(&file_path)?;
 
     find_word_in_string("function", &content);
 
