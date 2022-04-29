@@ -42,25 +42,22 @@ fn handling_arguments() -> Result<String, Error>{
     Err(Error::new(ErrorKind::Other,"Unkown command"))
 }
 
-fn find_word_in_string(word: &str, content: &str) -> usize {
+fn find_word_in_string(word: &str, content: &str) -> Result<usize, Error> {
   let mut limit_count = 0;
 
-   for letter in content.chars() {
-       for limit_letter in word.chars() {
-            if limit_letter == letter {
-                limit_count += 1;
-            } else {
-                limit_count = 0;
-            }
+   for index in 0..content.len() {
+       if word.as_bytes()[limit_count] as char == content.as_bytes()[index] as char {
+            limit_count += 1;
+       } else {
+            limit_count = 0;
+       }
 
-            if limit_count >= word.len() {
-            
-            }
-
+       if limit_count >= word.len() {
+         return Ok(index);            
        }
    }
 
-   14
+    Err(Error::new(ErrorKind::Other, "Word not found"))   
 }
 
 fn main() -> Result<(), Error> {
@@ -68,9 +65,12 @@ fn main() -> Result<(), Error> {
     let file_path = find_file(&file_name);
     let content = read_file(&file_path)?;
 
-    find_word_in_string("function", &content);
+    let foundIndex = find_word_in_string("function", &content)?;
 
+
+    println!("Index: \n {}", foundIndex);
     println!("File: \n {}", content);
+    println!("File in index: \n {}", content.into_bytes()[7] as char);
 
     Ok(())
 }
