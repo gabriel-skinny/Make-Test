@@ -1,1 +1,7 @@
-function helloWolrd()
+class Teste {
+	constructor( private readonly testeRepository
+		@Inject(BillingUseCase)
+		private readonly billingUseCase: BillingUseCase
+		) {}
+	
+}

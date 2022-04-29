@@ -53,7 +53,7 @@ fn find_word_in_string(word: &str, content: &str) -> Result<usize, Error> {
        }
 
        if limit_count >= word.len() {
-         return Ok(index);            
+         return Ok(index + 1);            
        }
    }
 
@@ -65,7 +65,7 @@ fn main() -> Result<(), Error> {
     let file_path = find_file(&file_name);
     let content = read_file(&file_path)?;
 
-    let foundIndex = find_word_in_string("function", &content)?;
+    let foundIndex = find_word_in_string("constructor", &content)?;
 
 
     println!("Index: \n {}", foundIndex);
