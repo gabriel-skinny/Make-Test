@@ -78,15 +78,15 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
 }
 
 fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
-    let variables = vec!(Var::default()); 
+    let mut variables = vec!(Var::default()); 
 
     for line in constructor_lines {
-        let limitWord = if line.contains("private readonly") { "private readonly"} else { "private"};
+        let limit_word = if line.contains("private readonly") { "private readonly" } else { "private" };
 
-        let init_var = find_word_in_string(&limitWord, &line);
+        let init_var = find_word_in_string(&limit_word, &line)?;
         for word_index in init_var..line.len() {
             let word = line.as_bytes()[word_index] as char;
-            let instanciated_name = String::new();
+            let mut instanciated_name = String::new();
             if word != ':' {
                 instanciated_name.push(word);
             }
