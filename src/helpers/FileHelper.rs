@@ -1,6 +1,6 @@
 pub mod FileHelper {
     use std::fs::File;
-    use std::io::{BufReader, Error, Read};
+    use std::io::{BufReader, Error, ErrorKind, Read};
     use std::process::Command;
     use std::str;
     use dialoguer::MultiSelect;
@@ -29,10 +29,8 @@ pub mod FileHelper {
 
     
 
-       println!("File {:?}", founded_files_string);
        let files = handle_multiple_files(founded_files_string);
-       println!("Files: {:?}", files);
-       let file_chosed = chose_one_file(files);
+       let file_chosed = chose_one_file(files)?;
        Ok(file_chosed)
     }
 
@@ -52,10 +50,13 @@ pub mod FileHelper {
     }
 
 
-    pub fn chose_one_file(file_options: Vec<String>) -> String {
-       let chosen = MultiSelect::new().items(&file_options).interact().unwrap();
+    fn chose_one_file(file_options: Vec<String>) -> Result<String, Error> {
+       let chosen = MultiSelect::new().items(&file_options).interact()?;
+      
+       if chosen.len() < 1 {
+        return Err(Error::new(ErrorKind::Other, "Should select a file"))   
+       }
 
-       println!("Chosen: {}", file_options[chosen[0]]);
-       file_options[chosen[0]].clone()
+       return Ok(file_options[chosen[0]].clone());
     }
 }
