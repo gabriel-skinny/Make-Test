@@ -1,11 +1,10 @@
-use std::fs::File;
-use std::io::{BufReader, Read, Error, ErrorKind};
+use std::io::{Error, ErrorKind};
 use std::env;
-use std::process::Command;
 use std::str;
+mod helpers;
 
 struct Var{
-    className: String,
+    class_name: String,
     instanciated_name: String,
     interface: String,
 }
@@ -13,34 +12,12 @@ struct Var{
 impl Default for Var {
     fn default() -> Self {
         Self { 
-            className: String::new(),
+            class_name: String::new(),
             instanciated_name: String::new(),
             interface: String::new()
         }
     }
 }
-
-fn read_file(file_path: &str) -> Result<String, Error>{
-    let file = File::open(file_path.trim())?;
-    
-    let mut buffer_read = BufReader::new(file); 
-    let mut contents = String::new();
-
-    buffer_read.read_to_string(&mut contents)?;
-    
-    Ok(contents)
-}
-
-fn find_file(file_name: &str) -> String {
-   let find_file = Command::new("/bin/find")
-                            .arg("-name")
-                            .arg(file_name)
-                            .output()
-                            .expect("Could found file"); 
-
-   str::from_utf8(&find_file.stdout).unwrap().to_string()
-}
-
 
 fn handling_arguments() -> Result<String, Error>{
     if env::args().len() < 2 {
@@ -101,12 +78,12 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
 }
 
 fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
-    let variables = vec!(Var::Default); 
+    let variables = vec!(Var::default()); 
 
     for line in constructor_lines {
         let limitWord = if line.contains("private readonly") { "private readonly"} else { "private"};
 
-        let init_var = find_word_in_string(&limitWord, line);
+        let init_var = find_word_in_string(&limitWord, &line);
         for word_index in init_var..line.len() {
             let word = line.as_bytes()[word_index] as char;
             let instanciated_name = String::new();
@@ -115,7 +92,9 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
             }
 
             variables.push(Var {
-             instanciated_name 
+                instanciated_name ,
+                class_name: "Billing".to_string(),
+                interface: "IBilling".to_string()
             })
         }
     }
@@ -125,8 +104,8 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
 
 fn main() -> Result<(), Error> {
     let file_name = handling_arguments()?;
-    let file_path = find_file(&file_name);
-    let content = read_file(&file_path)?;
+    let file_path = helpers::FileHelper::FileHelper::find_file(&file_name);
+    let content = helpers::FileHelper::FileHelper::read_file(&file_path)?;
 
     let foundIndex = find_word_in_string("constructor", &content)?;
 
