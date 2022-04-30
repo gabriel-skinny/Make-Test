@@ -4,6 +4,22 @@ use std::env;
 use std::process::Command;
 use std::str;
 
+struct Var{
+    className: String,
+    instanciated_name: String,
+    interface: String,
+}
+
+impl Default for Var {
+    fn default() -> Self {
+        Self { 
+            className: String::new(),
+            instanciated_name: String::new(),
+            interface: String::new()
+        }
+    }
+}
+
 fn read_file(file_path: &str) -> Result<String, Error>{
     let file = File::open(file_path.trim())?;
     
@@ -60,6 +76,53 @@ fn find_word_in_string(word: &str, content: &str) -> Result<usize, Error> {
     Err(Error::new(ErrorKind::Other, "Word not found"))   
 }
 
+fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
+    let contructor_init = find_word_in_string("constructor", content)?;
+    let mut lines = Vec::new();
+    let mut line = String::new();
+
+    for index in contructor_init..content.len() {
+        let word = content.as_bytes()[index] as char;
+
+        if word == '{' {
+            return Ok(lines);
+        }
+
+        if word != ',' {
+            line.push(word);
+        } else {
+            lines.push(line.clone());
+            line.clear();
+        }
+
+    }
+
+    Err(Error::new(ErrorKind::Other, "Constructor delimiter not found"))   
+}
+
+fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
+    let variables = vec!(Var::Default); 
+
+    for line in constructor_lines {
+        let limitWord = if line.contains("private readonly") { "private readonly"} else { "private"};
+
+        let init_var = find_word_in_string(&limitWord, line);
+        for word_index in init_var..line.len() {
+            let word = line.as_bytes()[word_index] as char;
+            let instanciated_name = String::new();
+            if word != ':' {
+                instanciated_name.push(word);
+            }
+
+            variables.push(Var {
+             instanciated_name 
+            })
+        }
+    }
+    
+    Ok(variables)
+}
+
 fn main() -> Result<(), Error> {
     let file_name = handling_arguments()?;
     let file_path = find_file(&file_name);
@@ -67,10 +130,14 @@ fn main() -> Result<(), Error> {
 
     let foundIndex = find_word_in_string("constructor", &content)?;
 
+    let lines = get_constructor_lines(&content)?;
+
+
+    println!("Lines : {:?}", lines);
 
     println!("Index: \n {}", foundIndex);
     println!("File: \n {}", content);
-    println!("File in index: \n {}", content.into_bytes()[7] as char);
+    println!("File in index: \n {}", content.into_bytes()[foundIndex] as char);
 
     Ok(())
 }
