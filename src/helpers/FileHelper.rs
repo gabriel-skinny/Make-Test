@@ -25,12 +25,17 @@ pub mod FileHelper {
                                 .arg(format!("{}*", file_name))
                                 .output()?;
     
-       let founded_files_string = str::from_utf8(&founded_files.stdout).unwrap().to_string();
+       let founded_files_string = str::from_utf8(&founded_files.stdout)
+                                                .unwrap()
+                                                .to_string();
 
-    
+       if !founded_files_string.trim().contains('\n') {
+           return Ok(founded_files_string);
+       }
 
        let files = handle_multiple_files(founded_files_string);
        let file_chosed = chose_one_file(files)?;
+
        Ok(file_chosed)
     }
 
