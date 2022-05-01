@@ -3,6 +3,7 @@ use std::env;
 use std::str;
 mod helpers;
 
+#[derive(Debug)]
 struct Var{
     class_name: String,
     instanciated_name: String,
@@ -78,24 +79,25 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
 }
 
 fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
-    let mut variables = vec!(Var::default()); 
+    let mut variables = Vec::new(); 
 
     for line in constructor_lines {
         let limit_word = if line.contains("private readonly") { "private readonly" } else { "private" };
 
         let init_var = find_word_in_string(&limit_word, &line)?;
+        let mut instanciated_name = String::new();
+
         for word_index in init_var..line.len() {
             let word = line.as_bytes()[word_index] as char;
-            let mut instanciated_name = String::new();
             if word != ':' {
                 instanciated_name.push(word);
+            } else {
+                variables.push(Var {
+                    instanciated_name: instanciated_name.clone() ,
+                    class_name: "Billing".to_string(),
+                    interface: "IBilling".to_string()
+                })
             }
-
-            variables.push(Var {
-                instanciated_name ,
-                class_name: "Billing".to_string(),
-                interface: "IBilling".to_string()
-            })
         }
     }
     
@@ -111,7 +113,9 @@ fn main() -> Result<(), Error> {
 
     let lines = get_constructor_lines(&content)?;
 
+    let var_names = get_var_names(&lines);
 
+    println!("Var name: {:?}", var_names);
     println!("Lines : {:?}", lines);
 
     println!("Index: \n {}", foundIndex);
