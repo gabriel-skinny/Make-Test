@@ -10,15 +10,6 @@ struct Var{
     interface: String,
 }
 
-impl Default for Var {
-    fn default() -> Self {
-        Self { 
-            class_name: String::new(),
-            instanciated_name: String::new(),
-            interface: String::new()
-        }
-    }
-}
 
 fn handling_arguments() -> Result<String, Error>{
     if env::args().len() < 2 {
