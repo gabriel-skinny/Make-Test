@@ -1,5 +1,5 @@
 class Teste {
-	constructor( private readonly testeRepository,
+	constructor( private readonly testeRepository: TesteRepository,
 		@Inject(BillingUseCase)
 		private readonly billingUseCase: BillingUseCase,
 		) {}
