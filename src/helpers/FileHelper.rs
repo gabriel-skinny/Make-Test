@@ -1,3 +1,4 @@
+#[allow(non_snake_case)]
 pub mod FileHelper {
     use std::fs::File;
     use std::io::{BufReader, Error, ErrorKind, Read};
