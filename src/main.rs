@@ -4,6 +4,7 @@ use std::str;
 mod helpers;
 
 #[derive(Debug)]
+#[allow(unused_variables, dead_code)]
 struct Var{
     class_name: String,
     instanciated_name: String,
@@ -73,6 +74,23 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
     let mut variables = Vec::new(); 
 
     for line in constructor_lines {
+        let mut class_name = String::new();
+
+        if line.contains("Inject") {
+           let mut start = false;
+
+            for word in line.chars() {
+                if word == ')' {start = false}
+
+                if start {
+                   class_name.push(word);
+                }
+
+                if word == '('  { start = true}
+            }
+
+        }
+
         let limit_word = if line.contains("private readonly") { "private readonly" } else { "private" };
 
         let init_var = find_word_in_string(&limit_word, &line)?;
@@ -83,10 +101,12 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
             if word != ':' {
                 instanciated_name.push(word);
             } else {
+                let real_object_name = line[word_index + 1..line.len()].trim().to_string();
+
                 variables.push(Var {
-                    instanciated_name: instanciated_name.clone() ,
-                    class_name: "Billing".to_string(),
-                    interface: "IBilling".to_string()
+                    instanciated_name: instanciated_name.clone().trim().to_string() ,
+                    class_name: if class_name.is_empty() { real_object_name.clone()} else{ class_name.clone()}, 
+                    interface: real_object_name.clone() 
                 })
             }
         }
@@ -100,18 +120,13 @@ fn main() -> Result<(), Error> {
     let file_path = helpers::FileHelper::FileHelper::find_file(&file_name)?;
     let content = helpers::FileHelper::FileHelper::read_file(&file_path)?;
 
-    let foundIndex = find_word_in_string("constructor", &content)?;
-
     let lines = get_constructor_lines(&content)?;
 
     let var_names = get_var_names(&lines);
 
     println!("Var name: {:?}", var_names);
-    println!("Lines : {:?}", lines);
 
-    println!("Index: \n {}", foundIndex);
     println!("File: \n {}", content);
-    println!("File in index: \n {}", content.into_bytes()[foundIndex] as char);
 
     Ok(())
 }
