@@ -117,8 +117,7 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
 
 fn main() -> Result<(), Error> {
     let file_name = handling_arguments()?;
-    let file_path = helpers::FileHelper::FileHelper::find_file(&file_name)?;
-    let content = helpers::FileHelper::FileHelper::read_file(&file_path)?;
+    let content = helpers::FileHelper::get_content(&file_name)?;
 
     let lines = get_constructor_lines(&content)?;
 
