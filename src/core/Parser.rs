@@ -4,15 +4,20 @@ use std::str;
 #[derive(Debug)]
 #[allow(unused_variables, dead_code)]
 pub struct Var {
-        class_name: String,
-            instanciated_name: String,
-                interface: String,
+    class_name: String,
+    instanciated_name: String,
+    interface: String,
+    is_sut: bool,
 }
 
 pub fn parse_constructor(file_content: &str) -> Result<Vec<Var>, Error> {
-    let constructor_lines = get_constructor_lines(file_content)?;
+   let constructor_lines = get_constructor_lines(file_content)?;
 
-    get_var_names(&constructor_lines)
+   let mut var_names = get_var_names(&constructor_lines)?;
+   let var_sut = get_sut(file_content)?;
+   var_names.push(var_sut);
+
+   Ok(var_names)
 }
 
 fn find_word_in_string(word: &str, content: &str) -> Result<usize, Error> {
@@ -30,7 +35,7 @@ fn find_word_in_string(word: &str, content: &str) -> Result<usize, Error> {
        }
    }
 
-    Err(Error::new(ErrorKind::Other, "Word not found"))   
+    Err(Error::new(ErrorKind::Other, format!("Word not found in file: '{}'", word)))   
 }
 
 fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
@@ -56,6 +61,26 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
 
     Err(Error::new(ErrorKind::Other, "Constructor delimiter not found"))   
 }
+
+fn get_sut(content: &str) -> Result<Var, Error> {
+   let init_limit = find_word_in_string("class", &content)?;
+   // handle not found implements word 
+   let interface_limit_start = find_word_in_string("implements", &content)?; 
+   let final_sut_name_limit = interface_limit_start - "implements".len() - 1;
+
+   let mut sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
+   let mut sut_interface = content[final_sut_name_limit..interface_limit_start].trim().to_string();
+
+   let instanciated_name = sut_name.clone()[0..1].to_uppercase() + &sut_name[1..];
+
+   Ok(Var {
+    class_name: sut_name,
+    instanciated_name,
+    interface: sut_interface,
+    is_sut: true
+   })
+}
+
 
 fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
     let mut variables = Vec::new(); 
@@ -93,7 +118,8 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
                 variables.push(Var {
                     instanciated_name: instanciated_name.clone().trim().to_string() ,
                     class_name: if class_name.is_empty() { real_object_name.clone()} else{ class_name.clone()}, 
-                    interface: real_object_name.clone() 
+                    interface: real_object_name.clone(), 
+                    is_sut: false
                 })
             }
         }
