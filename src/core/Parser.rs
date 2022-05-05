@@ -63,13 +63,29 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
 }
 
 fn get_sut(content: &str) -> Result<Var, Error> {
-   let init_limit = find_word_in_string("class", &content)?;
-   // handle not found implements word 
-   let interface_limit_start = find_word_in_string("implements", &content)?; 
-   let final_sut_name_limit = interface_limit_start - "implements".len() - 1;
+   let init_limit = find_word_in_string("class", &content)? + 1;
+   let mut final_sut_name_limit: usize;
+   let mut sut_interface: String;
+   let mut sut_name;
 
-   let mut sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
-   let mut sut_interface = content[final_sut_name_limit..interface_limit_start].trim().to_string();
+   match find_word_in_string("implements", &content) {
+       Ok(interface_limit_end) => { 
+           final_sut_name_limit = interface_limit_end - "implements".len() - 1;
+           sut_interface = content[final_sut_name_limit..interface_limit_end].trim().to_string();
+           sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
+       }
+       Err(error) => {
+            sut_name = String::new();
+            for word_index in init_limit..content.len() {
+                if content.as_bytes()[word_index] as char != ' ' {
+                   sut_name.push(content.as_bytes()[word_index] as char); 
+                }else {
+                    break;
+                }
+            } 
+            sut_interface = sut_name.clone();
+       }
+   }
 
    let instanciated_name = sut_name.clone()[0..1].to_uppercase() + &sut_name[1..];
 
