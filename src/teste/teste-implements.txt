@@ -1,4 +1,5 @@
-class Teste implements ITeste{
+class Teste implements ITeste
+{
 	constructor( private readonly testeRepository: TesteRepository,
 		@Inject(BillingUseCase)
 		private readonly billingUseCase: IBillingUseCase,
