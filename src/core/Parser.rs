@@ -62,6 +62,10 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
     Err(Error::new(ErrorKind::Other, "Constructor delimiter not found"))   
 }
 
+fn get_imports(vars: &Vec<Var>) -> Vec<Var> {
+    todo!();
+}
+
 fn get_sut(content: &str) -> Result<Var, Error> {
    let init_limit = find_word_in_string("class", &content)? + 1;
    let mut final_sut_name_limit: usize;
