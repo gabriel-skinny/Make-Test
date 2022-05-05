@@ -71,8 +71,15 @@ fn get_sut(content: &str) -> Result<Var, Error> {
    match find_word_in_string("implements", &content) {
        Ok(interface_limit_end) => { 
            final_sut_name_limit = interface_limit_end - "implements".len() - 1;
-           sut_interface = content[final_sut_name_limit..interface_limit_end].trim().to_string();
            sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
+           sut_interface = String::new();
+           for word_index in interface_limit_end + 1..content.len() {
+               if content.as_bytes()[word_index] as char != '{' && content.as_bytes()[word_index] as char != ' ' {
+                  sut_interface.push(content.as_bytes()[word_index] as char); 
+               }else {
+                   break;
+               }
+           }
        }
        Err(error) => {
             sut_name = String::new();
@@ -87,7 +94,7 @@ fn get_sut(content: &str) -> Result<Var, Error> {
        }
    }
 
-   let instanciated_name = sut_name.clone()[0..1].to_uppercase() + &sut_name[1..];
+   let instanciated_name = sut_name.clone()[0..1].to_lowercase() + &sut_name[1..];
 
    Ok(Var {
     class_name: sut_name,
