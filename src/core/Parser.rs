@@ -73,8 +73,8 @@ fn get_sut(content: &str) -> Result<Var, Error> {
            final_sut_name_limit = interface_limit_end - "implements".len() - 1;
            sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
            sut_interface = String::new();
-           for word_index in interface_limit_end + 1..content.len() {
-               if content.as_bytes()[word_index] as char != '{' && content.as_bytes()[word_index] as char != ' ' {
+           for word_index in interface_limit_end..content.len() {
+               if content.as_bytes()[word_index] as char != '{' && content.as_bytes()[word_index] as char != '\n' {
                   sut_interface.push(content.as_bytes()[word_index] as char); 
                }else {
                    break;
@@ -99,7 +99,7 @@ fn get_sut(content: &str) -> Result<Var, Error> {
    Ok(Var {
     class_name: sut_name,
     instanciated_name,
-    interface: sut_interface,
+    interface: sut_interface.trim().to_string(),
     is_sut: true
    })
 }
