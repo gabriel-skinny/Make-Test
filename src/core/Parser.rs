@@ -4,10 +4,10 @@ use std::str;
 #[derive(Debug)]
 #[allow(unused_variables, dead_code)]
 pub struct Var {
-    class_name: String,
-    instanciated_name: String,
-    interface: String,
-    is_sut: bool,
+    pub class_name: String,
+    pub instanciated_name: String,
+    pub interface: String,
+    pub is_sut: bool,
 }
 
 pub fn parse_constructor(file_content: &str) -> Result<Vec<Var>, Error> {
