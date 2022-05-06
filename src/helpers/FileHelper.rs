@@ -3,7 +3,7 @@ use std::io::{BufReader, Error, ErrorKind, Read};
 use std::process::Command;
 use std::str;
 use dialoguer::MultiSelect;
-
+use std::fs;
 
 pub fn get_content(file_name: &str) -> Result<String, Error> {
     let file_chosed = find_file(file_name)?;    
@@ -67,6 +67,33 @@ fn format_multiple_files(files: String) -> Vec<String>{
    files_result
 }
 
+pub fn write_on_file(mut content: String, path: &str) -> Result<(), Error> {
+   let to_write_path = format!("{}/tests/test.spec.ts", path);
+
+   match File::create(to_write_path) {
+    Ok(mut test_file) => {
+       test_file.read_to_string(&mut content)?;    
+    }
+    Err(error) => match error.kind() {
+        ErrorKind::NotFound => match fs::create_dir(format!("{}/tests", path)) {
+           Ok(_dir) => {
+            println!("Creating test directory...");
+            let mut to_write = File::create(format!("{}/tests/test.spec.ts", path))?; 
+            to_write.read_to_string(&mut content)?;    
+           }, 
+           Err(err) => panic!("Erro when creating test directory {:?}", err)
+        }
+        other_error => {
+            panic!("Error when creating file {:?}", other_error) 
+        }
+
+    }
+   }
+
+
+    
+   Ok(())
+}
 
 fn chose_one_file(file_options: Vec<String>) -> Result<String, Error> {
    let chosen = MultiSelect::new().items(&file_options).interact()?;
