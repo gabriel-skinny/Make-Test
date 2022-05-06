@@ -10,13 +10,12 @@ pub fn write_test_file(vars: &Vec<Parser::Var>) {
 }
 
 fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> {
-   let mut dependencies_option:Option<String> = None;
    let mut sut_injection:Option<String> = None;  
    let mut dependencies_format = String::new();
 
    for var in vars {
         if !var.is_sut {
-            dependencies_format.push_str(&format!("{},\n\t", var.instanciated_name));
+            dependencies_format.push_str(&format!("\t{},\n", var.instanciated_name));
         } else {
             sut_injection = Some(format!("{} = new {}", var.instanciated_name, var.class_name)); 
         }
@@ -24,7 +23,7 @@ fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> 
    }
    
    if let Some(sut_to_inject) = sut_injection {
-       let injected_dependencies = format!("{}({})", sut_to_inject, dependencies_format);
+       let injected_dependencies = format!("{}(\n{}\t)", sut_to_inject, dependencies_format);
 
        return Ok(injected_dependencies); 
    }
