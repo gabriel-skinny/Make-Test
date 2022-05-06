@@ -1,12 +1,14 @@
 use std::io::{Error, ErrorKind};
 use crate::core::Parser;
 
-pub fn write_test_file(vars: &Vec<Parser::Var>) {
-    let injections = inject_dependencies_on_sut(vars).unwrap(); 
+pub fn write_test_file(vars: &Vec<Parser::Var>) -> Result<String, Error> {
+    let injections = inject_dependencies_on_sut(vars)?; 
     let assignments = making_assignments(vars);
 
     println!("\n\nSut injection: \n {}\n\n", injections);
     println!("\n\nAssignemnets : \n {:?}\n\n", assignments);
+
+    Ok(injections)
 }
 
 fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> {
