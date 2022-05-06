@@ -6,9 +6,11 @@ mod core;
 fn main() -> Result<(), Error> {
     let file_name = helpers::EnvHelper::handling_arguments()?;
     let file_content = helpers::FileHelper::get_content(&file_name)?;
-    let var_names = core::Parser::parse_constructor(&file_content)?;
+    let vars = core::Parser::parse_constructor(&file_content)?;
 
-    println!("Var name: {:?}", var_names);
+    core::Writer::write_test_file(&vars);
+    
+    println!("Var name: {:?}", vars);
 
     println!("File: \n {}", file_content);
 
