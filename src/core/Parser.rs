@@ -11,29 +11,29 @@ pub struct Var {
 }
 
 pub fn parse_constructor(file_content: &str) -> Result<Vec<Var>, Error> {
-   let constructor_lines = get_constructor_lines(file_content)?;
+    let constructor_lines = get_constructor_lines(file_content)?;
 
-   let mut var_names = get_var_names(&constructor_lines)?;
-   let var_sut = get_sut(file_content)?;
-   var_names.push(var_sut);
+    let mut var_names = get_var_names(&constructor_lines)?;
+    let var_sut = get_sut(file_content)?;
+    var_names.push(var_sut);
 
-   Ok(var_names)
+    Ok(var_names)
 }
 
 fn find_word_in_string(word: &str, content: &str) -> Result<usize, Error> {
-  let mut limit_count = 0;
+    let mut limit_count = 0;
 
-   for index in 0..content.len() {
-       if word.as_bytes()[limit_count] as char == content.as_bytes()[index] as char {
+    for index in 0..content.len() {
+        if word.as_bytes()[limit_count] as char == content.as_bytes()[index] as char {
             limit_count += 1;
-       } else {
+        } else {
             limit_count = 0;
-       }
+        }
 
-       if limit_count >= word.len() {
-         return Ok(index + 1);            
-       }
-   }
+        if limit_count >= word.len() {
+            return Ok(index + 1);            
+        }
+    }
 
     Err(Error::new(ErrorKind::Other, format!("Word not found in file: '{}'", word)))   
 }
@@ -67,45 +67,45 @@ fn get_imports(vars: &Vec<Var>) -> Vec<Var> {
 }
 
 fn get_sut(content: &str) -> Result<Var, Error> {
-   let init_limit = find_word_in_string("class", &content)? + 1;
-   let mut final_sut_name_limit: usize;
-   let mut sut_interface: String;
-   let mut sut_name;
+    let init_limit = find_word_in_string("class", &content)? + 1;
+    let mut final_sut_name_limit: usize;
+    let mut sut_interface: String;
+    let mut sut_name;
 
-   match find_word_in_string("implements", &content) {
-       Ok(interface_limit_end) => { 
-           final_sut_name_limit = interface_limit_end - "implements".len() - 1;
-           sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
-           sut_interface = String::new();
-           for word_index in interface_limit_end..content.len() {
-               if content.as_bytes()[word_index] as char != '{' && content.as_bytes()[word_index] as char != '\n' {
-                  sut_interface.push(content.as_bytes()[word_index] as char); 
-               }else {
-                   break;
-               }
-           }
-       }
-       Err(error) => {
+    match find_word_in_string("implements", &content) {
+        Ok(interface_limit_end) => { 
+            final_sut_name_limit = interface_limit_end - "implements".len() - 1;
+            sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
+            sut_interface = String::new();
+            for word_index in interface_limit_end..content.len() {
+                if content.as_bytes()[word_index] as char != '{' && content.as_bytes()[word_index] as char != '\n' {
+                    sut_interface.push(content.as_bytes()[word_index] as char); 
+                }else {
+                    break;
+                }
+            }
+        }
+        Err(error) => {
             sut_name = String::new();
             for word_index in init_limit..content.len() {
                 if content.as_bytes()[word_index] as char != ' ' {
-                   sut_name.push(content.as_bytes()[word_index] as char); 
+                    sut_name.push(content.as_bytes()[word_index] as char); 
                 }else {
                     break;
                 }
             } 
             sut_interface = sut_name.clone();
-       }
-   }
+        }
+    }
 
-   let instanciated_name = sut_name.clone()[0..1].to_lowercase() + &sut_name[1..];
+    let instanciated_name = sut_name.clone()[0..1].to_lowercase() + &sut_name[1..];
 
-   Ok(Var {
-    class_name: sut_name,
-    instanciated_name,
-    interface: sut_interface.trim().to_string(),
-    is_sut: true
-   })
+    Ok(Var {
+        class_name: sut_name,
+        instanciated_name,
+        interface: sut_interface.trim().to_string(),
+        is_sut: true
+    })
 }
 
 
@@ -116,13 +116,13 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
         let mut class_name = String::new();
 
         if line.contains("Inject") {
-           let mut start = false;
+            let mut start = false;
 
             for word in line.chars() {
                 if word == ')' {start = false}
 
                 if start {
-                   class_name.push(word);
+                    class_name.push(word);
                 }
 
                 if word == '('  { start = true}
@@ -151,7 +151,7 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
             }
         }
     }
-    
+
     Ok(variables)
 }
 
