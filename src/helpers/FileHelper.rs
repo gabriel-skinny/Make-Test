@@ -5,24 +5,12 @@ use std::str;
 use dialoguer::MultiSelect;
 use std::fs;
 
-pub fn get_content(file_name: &str) -> Result<String, Error> {
-    let file_chosed = find_file(file_name)?;    
+pub fn get_content(file_name: &str) -> Result<(String, String), Error> {
+    let file_path = find_file(file_name)?;    
 
-    println!("File chosed {}", file_chosed);
-    
-    Ok(read_file(&file_chosed)?)
+    Ok((read_file(&file_path)?, file_path))
 }
 
-fn read_file(file_path: &str) -> Result<String, Error>{
-    let file = File::open(file_path.trim())?;
-    
-    let mut buffer_read = BufReader::new(file); 
-    let mut contents = String::new();
-
-    buffer_read.read_to_string(&mut contents)?;
-    
-    Ok(contents)
-}
 
 fn find_file(file_name: &str) -> Result<String, Error> {
    let founded_files = Command::new("/bin/find")
@@ -36,7 +24,6 @@ fn find_file(file_name: &str) -> Result<String, Error> {
    let founded_files_string = str::from_utf8(&founded_files.stdout)
                                             .unwrap()
                                             .to_string();
-   println!("File name {}", file_name);
 
    if founded_files_string == "" {
         return Err(Error::new(ErrorKind::Other, format!("File not found. Motive: {}", str::from_utf8(&founded_files.stderr).unwrap())))   
@@ -47,9 +34,18 @@ fn find_file(file_name: &str) -> Result<String, Error> {
    }
 
    let files = format_multiple_files(founded_files_string);
-   let file_chosed = chose_one_file(files)?;
+   chose_one_file(files)
+}
 
-   Ok(file_chosed)
+fn read_file(file_path: &str) -> Result<String, Error>{
+    let file = File::open(file_path.trim())?;
+    
+    let mut buffer_read = BufReader::new(file); 
+    let mut contents = String::new();
+
+    buffer_read.read_to_string(&mut contents)?;
+    
+    Ok(contents)
 }
 
 fn format_multiple_files(files: String) -> Vec<String>{
