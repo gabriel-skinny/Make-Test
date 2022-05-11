@@ -8,6 +8,7 @@ pub struct Var {
     pub instanciated_name: String,
     pub interface: String,
     pub is_sut: bool,
+    pub import: Option<String>,
 }
 
 pub fn parse_constructor(file_content: &str) -> Result<Vec<Var>, Error> {
@@ -62,8 +63,23 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
     Err(Error::new(ErrorKind::Other, "Constructor delimiter not found"))   
 }
 
-fn get_imports(vars: &Vec<Var>) -> Vec<Var> {
-    todo!();
+pub fn get_imports_for_vars(content: &str, vars: &mut Vec<Var>, file_path: &str) {
+    let mut content_line: Vec<&str> = content.split("\n").collect();
+
+    for line in content_line.iter_mut() {
+        for var in vars.iter_mut() {
+            if var.is_sut {
+                var.import = Some(format!("import {{ {} }} from '{}'", var.class_name, file_path));
+                break;
+            }
+
+            if line.contains(&var.class_name) && line.contains("import") {
+               var.import = Some(line.to_string()); 
+               break;
+            }
+        }
+    }
+    
 }
 
 fn get_sut(content: &str) -> Result<Var, Error> {
@@ -104,7 +120,8 @@ fn get_sut(content: &str) -> Result<Var, Error> {
         class_name: sut_name,
         instanciated_name,
         interface: sut_interface.trim().to_string(),
-        is_sut: true
+        is_sut: true,
+        import: None
     })
 }
 
@@ -146,7 +163,8 @@ fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
                     instanciated_name: instanciated_name.clone().trim().to_string() ,
                     class_name: if class_name.is_empty() { real_object_name.clone()} else{ class_name.clone()}, 
                     interface: real_object_name.clone(), 
-                    is_sut: false
+                    is_sut: false,
+                    import: None 
                 })
             }
         }
