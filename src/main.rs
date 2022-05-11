@@ -1,5 +1,4 @@
 use std::io::{Error, ErrorKind};
-use std::path::Path;
 
 mod helpers;
 mod core;
