@@ -68,7 +68,7 @@ fn get_imports(vars: &Vec<Var>) -> Vec<Var> {
 
 fn get_sut(content: &str) -> Result<Var, Error> {
     let init_limit = find_word_in_string("class", &content)? + 1;
-    let mut final_sut_name_limit: usize;
+    let final_sut_name_limit: usize;
     let mut sut_interface: String;
     let mut sut_name;
 
@@ -85,7 +85,7 @@ fn get_sut(content: &str) -> Result<Var, Error> {
                 }
             }
         }
-        Err(error) => {
+        Err(_error) => {
             sut_name = String::new();
             for word_index in init_limit..content.len() {
                 if content.as_bytes()[word_index] as char != ' ' {
