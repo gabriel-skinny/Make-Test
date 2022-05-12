@@ -74,7 +74,7 @@ fn read_file(file_path: &str) -> Result<String, Error>{
     Ok(contents)
 }
 
-pub fn write_on_file(mut content: String, path: &str) -> Result<(), Error> {
+pub fn write_on_file(content: String, path: &str) -> Result<(), Error> {
     let to_write_path = format!("{}/tests/test.spec.ts", path);
     let test_dir = format!("{}/tests", path);
 
