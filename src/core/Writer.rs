@@ -35,7 +35,7 @@ fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> 
         if !var.is_sut {
             dependencies_format.push_str(&format!("\t{},\n", var.instanciated_name));
         } else {
-            sut_injection = Some(format!("{} = new {}", var.instanciated_name, var.class_name)); 
+            sut_injection = Some(format!("sut = new {}", var.class_name)); 
         }
 
     }
@@ -52,9 +52,7 @@ fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> 
 fn making_assignments(vars: &Vec<Parser::Var>) -> String {
     let mut all_assignments = String::new();
     for var in vars {
-        if var.is_sut {
-            all_assignments.push_str(&format!("sut = new {}()\n", var.class_name));
-        } else {
+        if !var.is_sut {
             all_assignments.push_str(&format!("{} = new {}()\n", var.instanciated_name, var.class_name)); 
         }
     }
