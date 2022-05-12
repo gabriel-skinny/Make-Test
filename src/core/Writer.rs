@@ -6,9 +6,9 @@ pub fn write_test_file(vars: &Vec<Parser::Var>) -> Result<String, Error> {
     let assignments = making_assignments(vars);
 
     println!("\n\nSut injection: \n {}\n\n", injections);
-    println!("\n\nAssignemnets : \n {:?}\n\n", assignments);
+    println!("\n\nAssignemnets : \n {}\n\n", assignments);
 
-    Ok(injections)
+    Ok(make_teste_suit(assignments, injections))
 }
 
 
@@ -34,20 +34,39 @@ fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> 
     Err(Error::new(ErrorKind::Other, "Sut not found"))   
 }
 
-fn making_assignments(vars: &Vec<Parser::Var>) -> Vec<String> {
-    let mut all_assignments = Vec::new();
+fn making_assignments(vars: &Vec<Parser::Var>) -> String {
+    let mut all_assignments = String::new();
     for var in vars {
         let assignment;  
         if var.is_sut {
-            assignment = format!("sut = new {}()", var.class_name);
+            assignment = format!("sut = new {}()\n", var.class_name);
         } else {
-            assignment = format!("{} = new {}()", var.instanciated_name, var.class_name); 
+            assignment = format!("{} = new {}()\n", var.instanciated_name, var.class_name); 
         }
 
-        all_assignments.push(assignment); 
+        all_assignments.push_str(&assignment); 
     }
 
 
     all_assignments 
 }
+
+fn make_teste_suit(assignments: String, injections: String) -> String {
+   format!("describe('sut_name'), () => {{
+    {}
+    beforeEach(() => {{)
+        {}
+
+        {}
+     }})   
+   }}", assignments, assignments, injections)
+}
+
+
+
+
+
+
+
+
 
