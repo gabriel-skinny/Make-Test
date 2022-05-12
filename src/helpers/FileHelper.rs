@@ -92,6 +92,9 @@ pub fn write_on_file(content: String, path: &str) -> Result<(), Error> {
 
 
     let mut file_to_write = File::create(&to_write_path)?; 
+    
+    println!("\nTest written on path: {}\n\n", to_write_path);
+
     file_to_write.write_all(&content.as_bytes())?;    
 
     Ok(())
