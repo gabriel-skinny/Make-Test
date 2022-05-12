@@ -35,8 +35,6 @@ fn main() -> Result<(), Error> {
     let file_path_formated = remove_file_name_from_path(&file_path)?;
     helpers::FileHelper::write_on_file(formated_vars_to_write, &file_path_formated)?;
 
-    println!("File: \n {}", file_content);
-    println!("Var name: {:?}", vars);
 
     Ok(())
 }
