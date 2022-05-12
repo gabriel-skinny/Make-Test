@@ -8,7 +8,7 @@ pub fn write_test_file(vars: &Vec<Parser::Var>) -> Result<String, Error> {
     println!("\n\nSut injection: \n {}\n\n", injections);
     println!("\n\nAssignemnets : \n {}\n\n", assignments);
 
-    Ok(make_teste_suit(assignments, injections))
+    Ok(make_test_suit(assignments, injections))
 }
 
 
@@ -51,7 +51,7 @@ fn making_assignments(vars: &Vec<Parser::Var>) -> String {
     all_assignments 
 }
 
-fn make_teste_suit(assignments: String, injections: String) -> String {
+fn make_test_suit(assignments: String, injections: String) -> String {
    format!("describe('sut_name'), () => {{
     {}
     beforeEach(() => {{)
