@@ -2,16 +2,30 @@ use std::io::{Error, ErrorKind};
 use crate::core::Parser;
 
 pub fn write_test_file(vars: &Vec<Parser::Var>) -> Result<String, Error> {
+    let formated_imports = format_imports(vars)?;
     let injections = inject_dependencies_on_sut(vars)?; 
     let assignments = making_assignments(vars);
     let typed_vars = typing_vars(vars);
 
     println!("\n\nSut injection: \n {}\n\n", injections);
     println!("\n\nAssignemnets : \n {}\n\n", assignments);
+    println!("\n\nImports : \n {}\n\n", formated_imports);
 
-    Ok(make_test_suit(typed_vars, assignments, injections))
+    Ok(make_test_suit(formated_imports, typed_vars, assignments, injections))
 }
 
+
+fn format_imports(vars: &Vec<Parser::Var>) -> Result<String, Error> {
+    let mut formated_imports = String::new();
+    for var in vars {
+        match &var.import { 
+            Some(import) => formated_imports.push_str(&format!("{}\n", import)),
+            None => return Err(Error::new(ErrorKind::Other, format!("Could find import for {}", var.class_name)))
+        }
+    }
+
+    Ok(formated_imports) 
+}
 
 fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> {
     let mut sut_injection:Option<String> = None;  
@@ -63,15 +77,16 @@ fn typing_vars(vars: &Vec<Parser::Var>) -> String {
     all_typing 
 }
 
-fn make_test_suit(typed_vars: String, assignments: String, injections: String) -> String {
-   format!("describe('sut_name'), () => {{
+fn make_test_suit(imports: String, typed_vars: String, assignments: String, injections: String) -> String {
+   format!("{}
+describe('sut_name'), () => {{
     {}
     beforeEach(() => {{)
         {}
 
         {}
      }})   
-   }}", typed_vars, assignments, injections)
+   }}", imports, typed_vars, assignments, injections)
 }
 
 
