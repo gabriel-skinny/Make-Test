@@ -88,16 +88,20 @@ fn typing_vars(vars: &Vec<Parser::Var>) -> String {
     all_typing 
 }
 
-fn make_test_suit(imports: String, typed_vars: String, assignments: String, injections: String) -> String {
+fn make_test_suit(imports: String, spies: String, typed_vars: String, assignments: String, injections: String) -> String {
    format!("{}
 describe('sut_name'), () => {{
+
     {}
+
+    {}
+
     beforeEach(() => {{)
         {}
 
         {}
      }})   
-   }}", imports, typed_vars, assignments, injections)
+   }}", imports, spies, typed_vars, assignments, injections)
 }
 
 
