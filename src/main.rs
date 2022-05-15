@@ -23,8 +23,11 @@ fn remove_file_name_from_path(path: &str) -> Result<String, Error> {
 }
 
 fn main() -> Result<(), Error> {
-    let file_name = helpers::EnvHelper::handling_arguments()?;
-    let (file_content, file_path) = helpers::FileHelper::get_content(&file_name)?;
+    let arguments = helpers::EnvHelper::get_arguments()?;
+    
+    println!("\n\n Arguments: {:?} \n\n", arguments);
+
+    let (file_content, file_path) = helpers::FileHelper::get_content(&arguments.file_name)?;
 
     let mut vars = core::Parser::parse_constructor(&file_content)?;
     
