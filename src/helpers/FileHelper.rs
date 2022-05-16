@@ -6,16 +6,16 @@ use dialoguer::MultiSelect;
 use std::fs;
 use std::io::Write;
 
-pub fn get_content(file_name: &str) -> Result<(String, String), Error> {
-    let file_path = find_file(file_name)?;    
+pub fn get_content(file_name: &str, filter_path: &str) -> Result<(String, String), Error> {
+    let file_path = find_file(file_name, filter_path)?;    
 
     Ok((read_file(&file_path)?, file_path))
 }
 
 
-fn find_file(file_name: &str) -> Result<String, Error> {
+fn find_file(file_name: &str, filter_path: &str) -> Result<String, Error> {
     let founded_files = Command::new("/bin/find")
-        .arg("src/") 
+        .arg(filter_path) 
         .arg("-type")
         .arg("f")
         .arg("-name")
