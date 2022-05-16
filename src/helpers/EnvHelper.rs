@@ -13,12 +13,12 @@ pub fn get_arguments() -> Result<Arguments, Error>{
         return Err(Error::new(ErrorKind::Other,"too little arguments"));
     }
 
-    let mut arguments = Arguments::default();
+    let mut arguments = Arguments { filter_path: "src/".to_owned(), ..Default::default()};
 
     let argv: Vec<String> = env::args().collect();
     let mut argument_key = 1;
-    for mut index in 1..argv.len() {
-            let argument_value = index + 1;
+    for index in 1..argv.len() {
+            let argument_value = argument_key + 1;
             if argument_value  > argv.len() - 1 || argument_key > argv.len() - 1 { break };
             handle_argument(&argv[argument_key], &argv[argument_value], &mut arguments)?;
             argument_key += 2;
