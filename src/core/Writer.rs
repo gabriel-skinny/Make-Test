@@ -72,7 +72,7 @@ fn making_assignments(vars: &Vec<Parser::Var>) -> String {
     let mut all_assignments = String::new();
     for var in vars {
         if !var.is_sut {
-            all_assignments.push_str(&format!("{} = new {}()\n", var.instanciated_name, var.class_name)); 
+            all_assignments.push_str(&format!("{} = new {}();\n", var.instanciated_name, var.class_name)); 
         }
     }
 
@@ -84,9 +84,9 @@ fn typing_vars(vars: &Vec<Parser::Var>) -> String {
     let mut all_typing = String::new();
     for var in vars {
         if var.is_sut {
-            all_typing.push_str(&format!("sut: {}\n", var.interface));
+            all_typing.push_str(&format!("sut: {};\n", var.interface));
         } else {
-            all_typing.push_str(&format!("{}: {}\n", var.instanciated_name, var.interface)); 
+            all_typing.push_str(&format!("{}: {};\n", var.instanciated_name, var.interface)); 
         }
     }
 
