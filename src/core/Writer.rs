@@ -3,16 +3,22 @@ use crate::core::Parser;
 
 pub fn write_test_file(vars: &Vec<Parser::Var>) -> Result<String, Error> {
     let formated_imports = format_imports(vars)?;
+    let sut_class_name = get_sut_class_name(vars)?;
     let spies = make_spys(vars);
     let injections = inject_dependencies_on_sut(vars)?; 
     let assignments = making_assignments(vars);
     let typed_vars = typing_vars(vars);
 
-    println!("\n\nSut injection: \n {}\n\n", injections);
-    println!("\n\nAssignemnets : \n {}\n\n", assignments);
-    println!("\n\nImports : \n {}\n\n", formated_imports);
 
-    Ok(make_test_suit(formated_imports, spies, typed_vars, assignments, injections))
+    Ok(make_test_suit(formated_imports, sut_class_name, spies, typed_vars, assignments, injections))
+}
+
+fn get_sut_class_name(vars: &Vec<Parser::Var>) -> Result<String, Error> {
+    for var in vars {
+        if var.is_sut { return Ok(var.class_name.clone());}
+    }
+
+    Err(Error::new(ErrorKind::Other, "Sut not found"))
 }
 
 
@@ -88,9 +94,9 @@ fn typing_vars(vars: &Vec<Parser::Var>) -> String {
     all_typing 
 }
 
-fn make_test_suit(imports: String, spies: String, typed_vars: String, assignments: String, injections: String) -> String {
+fn make_test_suit(imports: String, sut_class_name: String, spies: String, typed_vars: String, assignments: String, injections: String) -> String {
    format!("{}
-describe('sut_name'), () => {{
+describe('{}'), () => {{
 
     {}
 
@@ -101,9 +107,8 @@ describe('sut_name'), () => {{
 
         {}
      }})   
-   }}", imports, spies, typed_vars, assignments, injections)
+   }}", imports, sut_class_name, spies, typed_vars, assignments, injections)
 }
-
 
 
 
