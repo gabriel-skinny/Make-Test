@@ -6,8 +6,10 @@ use dialoguer::MultiSelect;
 use std::fs;
 use std::io::Write;
 
-pub fn get_content(file_name: &str, filter_path: &str) -> Result<(String, String), Error> {
-    let file_path = find_file(file_name, filter_path)?;    
+use crate::helpers::EnvHelper;
+
+pub fn get_content(file_arguments: &EnvHelper::Arguments) -> Result<(String, String), Error> {
+    let file_path = find_file(&file_arguments.file_name, &file_arguments.filter_path)?;    
 
     Ok((read_file(&file_path)?, file_path))
 }
