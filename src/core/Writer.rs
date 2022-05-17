@@ -52,15 +52,15 @@ fn inject_dependencies_on_sut(vars: &Vec<Parser::Var>) -> Result<String, Error> 
 
     for var in vars {
         if !var.is_sut {
-            dependencies_format.push_str(&format!("\t{},\n", var.instanciated_name));
+            dependencies_format.push_str(&format!("\t\t\t{},\n", var.instanciated_name));
         } else {
-            sut_injection = Some(format!("sut = new {}", var.class_name)); 
+            sut_injection = Some(format!("\t\tsut = new {}", var.class_name)); 
         }
 
     }
 
     if let Some(sut_to_inject) = sut_injection {
-        let injected_dependencies = format!("{}(\n{}\t)", sut_to_inject, dependencies_format);
+        let injected_dependencies = format!("{}(\n{}\t\t)", sut_to_inject, dependencies_format);
 
         return Ok(injected_dependencies); 
     }
@@ -72,7 +72,7 @@ fn making_assignments(vars: &Vec<Parser::Var>) -> String {
     let mut all_assignments = String::new();
     for var in vars {
         if !var.is_sut {
-            all_assignments.push_str(&format!("{} = new {}();\n", var.instanciated_name, var.class_name)); 
+            all_assignments.push_str(&format!("\t\t{} = new {}();\n", var.instanciated_name, var.class_name)); 
         }
     }
 
@@ -84,9 +84,9 @@ fn typing_vars(vars: &Vec<Parser::Var>) -> String {
     let mut all_typing = String::new();
     for var in vars {
         if var.is_sut {
-            all_typing.push_str(&format!("sut: {};\n", var.interface));
+            all_typing.push_str(&format!("\tsut: {};\n", var.interface));
         } else {
-            all_typing.push_str(&format!("{}: {};\n", var.instanciated_name, var.interface)); 
+            all_typing.push_str(&format!("\t{}: {};\n", var.instanciated_name, var.interface)); 
         }
     }
 
@@ -96,18 +96,18 @@ fn typing_vars(vars: &Vec<Parser::Var>) -> String {
 
 fn make_test_suit(imports: String, sut_class_name: String, spies: String, typed_vars: String, assignments: String, injections: String) -> String {
    format!("{}
+
+{}
+
 describe('{}'), () => {{
+{}
 
-    {}
+  beforeEach(() => {{)
+{}
 
-    {}
-
-    beforeEach(() => {{)
-        {}
-
-        {}
-     }})   
-   }}", imports, sut_class_name, spies, typed_vars, assignments, injections)
+{}
+   }})   
+}}", imports, spies, sut_class_name, typed_vars, assignments, injections)
 }
 
 
