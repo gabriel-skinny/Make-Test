@@ -1,5 +1,6 @@
 use std::io::{Error, ErrorKind};
 use std::str;
+use crate::helpers::Utils;
 
 #[derive(Debug)]
 #[allow(unused_variables, dead_code)]
@@ -21,26 +22,8 @@ pub fn parse_constructor(file_content: &str) -> Result<Vec<Var>, Error> {
     Ok(var_names)
 }
 
-fn find_word_in_string(word: &str, content: &str) -> Result<usize, Error> {
-    let mut limit_count = 0;
-
-    for index in 0..content.len() {
-        if word.as_bytes()[limit_count] as char == content.as_bytes()[index] as char {
-            limit_count += 1;
-        } else {
-            limit_count = 0;
-        }
-
-        if limit_count >= word.len() {
-            return Ok(index + 1);            
-        }
-    }
-
-    Err(Error::new(ErrorKind::Other, format!("Word not found in file: '{}'", word)))   
-}
-
 fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
-    let contructor_init = find_word_in_string("constructor", content)?;
+    let contructor_init = Utils::find_word_in_string("constructor", content)?;
     let mut lines = Vec::new();
     let mut line = String::new();
 
@@ -63,32 +46,60 @@ fn get_constructor_lines(content: &str) -> Result<Vec<String>, Error> {
     Err(Error::new(ErrorKind::Other, "Constructor delimiter not found"))   
 }
 
-pub fn get_imports_for_vars(content: &str, vars: &mut Vec<Var>, file_path: &str) {
-    let mut content_line: Vec<&str> = content.split("\n").collect();
+fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
+    let mut variables = Vec::new(); 
 
-    for line in content_line.iter_mut() {
-        for var in vars.iter_mut() {
-            if var.is_sut {
-                var.import = Some(format!("import {{ {} }} from '{}'", var.class_name, file_path));
-                break;
+    for line in constructor_lines {
+        let mut class_name = String::new();
+
+        if line.contains("Inject") {
+            let mut start = false;
+
+            for word in line.chars() {
+                if word == ')' {start = false}
+
+                if start {
+                    class_name.push(word);
+                }
+
+                if word == '('  { start = true}
             }
 
-            if line.contains(&var.class_name) && line.contains("import") {
-               var.import = Some(line.to_string()); 
-               break;
+        }
+
+        let limit_word = if line.contains("private readonly") { "private readonly" } else { "private" };
+
+        let init_var = Utils::find_word_in_string(&limit_word, &line)?;
+        let mut instanciated_name = String::new();
+
+        for word_index in init_var..line.len() {
+            let word = line.as_bytes()[word_index] as char;
+            if word != ':' {
+                instanciated_name.push(word);
+            } else {
+                let real_object_name = line[word_index + 1..line.len()].trim().to_string();
+
+                variables.push(Var {
+                    instanciated_name: instanciated_name.clone().trim().to_string() ,
+                    class_name: if class_name.is_empty() { real_object_name.clone()} else{ class_name.clone()}, 
+                    interface: real_object_name.clone(), 
+                    is_sut: false,
+                    import: None 
+                })
             }
         }
     }
-    
+
+    Ok(variables)
 }
 
 fn get_sut(content: &str) -> Result<Var, Error> {
-    let init_limit = find_word_in_string("class", &content)? + 1;
+    let init_limit = Utils::find_word_in_string("class", &content)? + 1;
     let final_sut_name_limit: usize;
     let mut sut_interface: String;
     let mut sut_name;
 
-    match find_word_in_string("implements", &content) {
+    match Utils::find_word_in_string("implements", &content) {
         Ok(interface_limit_end) => { 
             final_sut_name_limit = interface_limit_end - "implements".len() - 1;
             sut_name = content[init_limit..final_sut_name_limit].trim().to_string();
@@ -125,51 +136,21 @@ fn get_sut(content: &str) -> Result<Var, Error> {
     })
 }
 
+pub fn get_imports_for_vars(content: &str, vars: &mut Vec<Var>, file_path: &str) {
+    let mut content_line: Vec<&str> = content.split("\n").collect();
 
-fn get_var_names(constructor_lines: &Vec<String>) -> Result<Vec<Var>, Error>{
-    let mut variables = Vec::new(); 
-
-    for line in constructor_lines {
-        let mut class_name = String::new();
-
-        if line.contains("Inject") {
-            let mut start = false;
-
-            for word in line.chars() {
-                if word == ')' {start = false}
-
-                if start {
-                    class_name.push(word);
-                }
-
-                if word == '('  { start = true}
+    for line in content_line.iter_mut() {
+        for var in vars.iter_mut() {
+            if var.is_sut {
+                var.import = Some(format!("import {{ {} }} from '{}'", var.class_name, file_path));
+                break;
             }
 
-        }
-
-        let limit_word = if line.contains("private readonly") { "private readonly" } else { "private" };
-
-        let init_var = find_word_in_string(&limit_word, &line)?;
-        let mut instanciated_name = String::new();
-
-        for word_index in init_var..line.len() {
-            let word = line.as_bytes()[word_index] as char;
-            if word != ':' {
-                instanciated_name.push(word);
-            } else {
-                let real_object_name = line[word_index + 1..line.len()].trim().to_string();
-
-                variables.push(Var {
-                    instanciated_name: instanciated_name.clone().trim().to_string() ,
-                    class_name: if class_name.is_empty() { real_object_name.clone()} else{ class_name.clone()}, 
-                    interface: real_object_name.clone(), 
-                    is_sut: false,
-                    import: None 
-                })
+            if line.contains(&var.class_name) && line.contains("import") {
+               var.import = Some(line.to_string()); 
+               break;
             }
         }
     }
-
-    Ok(variables)
+    
 }
-
