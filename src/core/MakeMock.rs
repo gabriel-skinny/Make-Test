@@ -26,7 +26,7 @@ fn get_class_lines(content: &str) -> Result<Vec<String>, Error> {
             if word != '\n' {
                 line.push(word);
             } else {
-                if line.trim() != "" && line != "{" {
+                if line.trim() != "" {
                     lines.push(line.clone().trim().to_owned());
                 }
                 line.clear();
@@ -41,14 +41,25 @@ fn get_class_lines(content: &str) -> Result<Vec<String>, Error> {
 fn get_functions(class_lines: &Vec<String>) -> Result<Vec<String>, Error> {
     let mut functions = Vec::new();
 
-    // To pick function the else methods has to find the end of the brackets with one open bracket
-    // is found the sum of total brackes is sum to one, in the one the end of the bracket has to
-    // match the function open bracket
+    let mut bracketsCount = 0;
+    let mut check_function = true;
     for line in class_lines {
-        if line.contains("(") && line.contains(")") && line.as_bytes()[line.len() - 1] as char == '{' {
-            if line.contains("async") {
-                functions.push(line.clone());
-            }
+        if line.contains("{") {
+            bracketsCount += 1;
+        }
+
+        if line.contains("}") && bracketsCount == 2 {
+            check_function = true;    
+        }
+
+        if line.contains("}") {
+            bracketsCount -= 1;
+        }
+
+
+        if bracketsCount == 2 && !line.contains("=") && check_function {
+            functions.push(line.clone());  
+            check_function = false;
         }
     }
 
