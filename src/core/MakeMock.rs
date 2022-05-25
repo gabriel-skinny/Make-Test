@@ -42,14 +42,14 @@ fn get_functions(class_lines: &Vec<String>) -> Result<Vec<String>, Error> {
     let mut functions = Vec::new();
 
     let mut bracketsCount = 0;
-    let mut check_function = true;
+    let mut copy_function = true;
     for line in class_lines {
         if line.contains("{") {
             bracketsCount += 1;
         }
 
         if line.contains("}") && bracketsCount == 2 {
-            check_function = true;    
+            copy_function = true;    
         }
 
         if line.contains("}") {
@@ -57,9 +57,9 @@ fn get_functions(class_lines: &Vec<String>) -> Result<Vec<String>, Error> {
         }
 
 
-        if bracketsCount == 2 && !line.contains("=") && check_function {
+        if bracketsCount == 2 && !line.contains("=") && copy_function {
             functions.push(line.clone());  
-            check_function = false;
+            copy_function = false;
         }
     }
 
