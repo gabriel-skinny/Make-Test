@@ -4,7 +4,7 @@ use crate::core::Parser;
 pub fn write_test_file(vars: &Vec<Parser::Var>) -> Result<String, Error> {
     let formated_imports = format_imports(vars)?;
     let sut_class_name = get_sut_class_name(vars)?;
-    let spies = make_spys(vars);
+    let spies = make_spies(vars);
     let injections = inject_dependencies_on_sut(vars)?; 
     let assignments = making_assignments(vars);
     let typed_vars = typing_vars(vars);
@@ -34,12 +34,12 @@ fn format_imports(vars: &Vec<Parser::Var>) -> Result<String, Error> {
     Ok(formated_imports) 
 }
 
-fn make_spys(vars: &Vec<Parser::Var>) -> String {
+fn make_spies(vars: &Vec<Parser::Var>) -> String {
     let mut spies = String::new();
 
     for var in vars {
         if !var.is_sut {
-            spies.push_str(&format!("{}Spy implements {} {{}}\n\n", var.class_name, var.interface));
+            spies.push_str(&format!("class {}Spy implements {} {{}}\n\n", var.class_name, var.interface));
         } 
     };     
     
