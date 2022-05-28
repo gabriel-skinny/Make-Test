@@ -1,4 +1,4 @@
-use std::io::{Error, ErrorKind};
+use std::io::{Error};
 
 mod helpers;
 mod core;
