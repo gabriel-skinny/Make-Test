@@ -99,15 +99,15 @@ fn make_test_suit(imports: String, sut_class_name: String, spies: String, typed_
 
 {}
 
-describe('{}'), () => {{
+describe('{}', () => {{
 {}
 
-  beforeEach(() => {{)
+  beforeEach(() => {{
 {}
 
 {}
    }})   
-}}", imports, spies, sut_class_name, typed_vars, assignments, injections)
+}})", imports, spies, sut_class_name, typed_vars, assignments, injections)
 }
 
 
