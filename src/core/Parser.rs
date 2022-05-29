@@ -3,7 +3,6 @@ use std::str;
 use crate::helpers::Utils;
 
 #[derive(Debug)]
-#[allow(unused_variables, dead_code)]
 pub struct Var {
     pub class_name: String,
     pub instanciated_name: String,
@@ -142,7 +141,7 @@ pub fn get_imports_for_vars(content: &str, vars: &mut Vec<Var>, file_path: &str)
     for line in content_line.iter_mut() {
         for var in vars.iter_mut() {
             if var.is_sut {
-                var.import = Some(format!("import {{ {} }} from '{}'", var.class_name, file_path));
+                var.import = Some(format!("import {{ {} }} from '{}';", var.class_name, file_path.trim()));
                 break;
             }
 
