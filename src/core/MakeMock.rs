@@ -7,6 +7,7 @@ pub struct Argument {
    argument_name: String,
    interface: String,
    mock: String,
+   path_to_interface: Option<String>
 }
 
 enum JavaScripTypes {
@@ -114,7 +115,8 @@ fn get_arguments(functions: &Vec<String>) -> Result<Vec<Argument>, Error>{
                     Argument {
                         argument_name: argument_name.clone(),
                         interface: interface.clone(),
-                        mock: String::new()
+                        mock: String::new(),
+                        path_to_interface: None,
                     }
                     );
                 argument_name.clear();
@@ -180,8 +182,7 @@ fn get_imports_for_arguments(content: &str, arguments: &mut Vec<Argument>) {
     for line in content_line.iter_mut() {
         for argument in arguments.iter_mut() {
             if line.contains(&argument.interface) && line.contains("import") && argument.mock != " " {
-                let path = get_path_from_import(line); 
-                println!("Path {}", path);
+                argument.path_to_interface = Some(get_path_from_import(line)); 
             }
         }
     }
