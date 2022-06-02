@@ -65,7 +65,7 @@ fn chose_one_file(file_options: Vec<String>) -> Result<String, Error> {
     return Ok(file_options[chosen[0]].clone());
 }
 
-fn read_file(file_path: &str) -> Result<String, Error>{
+pub fn read_file(file_path: &str) -> Result<String, Error>{
     let file = File::open(file_path.trim())?;
 
     let mut buffer_read = BufReader::new(file); 
