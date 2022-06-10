@@ -28,11 +28,14 @@ pub fn make(content: &str) -> Result<Vec<Argument>, Error> {
     let functions = get_functions(&class_lines)?;
     let mut arguments = get_arguments(&functions)?;
 
-    create_mock(&mut arguments);
-    get_imports_for_arguments(&content ,&mut arguments);
 
-    println!("Functions: \n {:?}", functions);
-    println!("Arguments: \n {:?}", arguments);
+    for argument in arguments.iter_mut() {
+        argument.mock = create_mock(&argument.interface);
+    }   
+    
+    get_imports_for_arguments(&content ,&mut arguments)?;
+
+    println!("\n \nArguments: \n {:?}", arguments);
 
     Ok(arguments)
 }
@@ -150,20 +153,22 @@ fn get_arguments(functions: &Vec<String>) -> Result<Vec<Argument>, Error>{
     Ok(arguments)
 }
 
-fn create_mock(arguments: &mut Vec<Argument>)  {
-   for argument in arguments.iter_mut() {
-    if let Some(argument_type) = enumerate_arguments(&argument.interface) {
-      match argument_type {  
-        JavaScripTypes::Number => argument.mock = "123".to_owned(),
-        JavaScripTypes::NumberArr => argument.mock = "[1242, 1923]".to_owned(),
-        JavaScripTypes::StrArr => argument.mock = "['teste1', 'teste2']".to_owned(),
-        JavaScripTypes::Str => argument.mock = "teste".to_owned(),
-        JavaScripTypes::Date => argument.mock = "2022-04-03T03:00:00".to_owned(),
-        JavaScripTypes::Any => argument.mock = "any".to_owned(),
-        _ => argument.mock = "".to_owned(), 
-      }
-    };
-   } 
+fn create_mock(argument_interface: &str) -> String  {
+    let mut mock = String::new();
+
+    if let Some(argument_type) = enumerate_arguments(argument_interface) {
+        match argument_type {  
+            JavaScripTypes::Number => mock.push_str("123"),
+            JavaScripTypes::NumberArr => mock.push_str("[1242, 1923]"),
+            JavaScripTypes::StrArr => mock.push_str("['teste1', 'teste2']"),
+            JavaScripTypes::Str => mock.push_str("teste"),
+            JavaScripTypes::Date => mock.push_str("2022-04-03T03:00:00"),
+            JavaScripTypes::Any => mock.push_str("any"),
+            _ => mock.push_str(""), 
+        }
+    }
+
+    mock
 }
 
 fn enumerate_arguments(interface_type: &str) -> Option<JavaScripTypes> {
@@ -224,15 +229,16 @@ fn get_path_from_import(import_line: &str) -> String {
     path
 }
 
-fn resolve_mock_to_import(path: String, interfaceName: &str) -> Result<String, Error> {
+fn resolve_mock_to_import(path: String, interface_name: &str) -> Result<String, Error> {
     let file_content = FileHelper::read_file(&path)?;
+
 
     let content_lines = file_content.split("\n");     
     let mut interface_content: Vec<&str> = Vec::new();
 
     let mut start_copy = false;
     for line in content_lines {
-        if line.contains(&interfaceName) && line.contains("interface") && line.as_bytes()[line.len() - 1] as char  == '{' {
+        if line.contains(&interface_name) && line.contains("interface") && line.as_bytes()[line.len() - 1] as char  == '{' {
             start_copy = true;
             continue;
         }
@@ -246,16 +252,30 @@ fn resolve_mock_to_import(path: String, interfaceName: &str) -> Result<String, E
         }
     }
 
+    if interface_content.len() <= 0 {
+        return Err(Error::new(ErrorKind::Other, format!("No interface found for {}", interface_name))); 
+    }
 
-    let interfaceMock = mock_interface_content(&interface_content);
 
-    println!("Interface mock {:?}", interfaceMock);
+    let interface_mock = mock_interface_content(&interface_content);
+
+    println!("INterface mock {:?}", interface_mock);
 
     Ok("bala".to_owned())
 }
 
 fn mock_interface_content(content: &Vec<&str>) -> HashMap<String, String> {
-    let mut interface_map = HashMap::new();
+    let mut maped_content = map_interface_content(content);
+
+    for value in maped_content.values_mut() {
+       *value = create_mock(value); 
+    }
+
+    maped_content
+}
+
+fn map_interface_content(content: &Vec<&str>) -> HashMap<String, String> {
+    let mut interface_map: HashMap<String, String> = HashMap::new();
 
     for line in content {
        let mut key = String::new();
@@ -285,4 +305,3 @@ fn mock_interface_content(content: &Vec<&str>) -> HashMap<String, String> {
 
     interface_map
 }
-
