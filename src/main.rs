@@ -11,7 +11,7 @@ fn main() -> Result<(), Error> {
     
     core::Parser::get_imports_for_vars(&file_content, &mut vars, &file_path);
 
-    core::MakeMock::make(&file_content);
+    core::MakeMock::make(&file_content)?;
 
     let formated_vars_to_write = core::Writer::write_test_file(&vars)?;
 
