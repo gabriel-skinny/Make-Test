@@ -16,22 +16,12 @@ pub fn get_arguments() -> Result<Arguments, Error>{
 
     let mut arguments_hash_map: HashMap<String, String> = make_hash_map();
 
-    let argv: Vec<String> = env::args().collect();
-    let mut argument_key = 1;
-    let mut argument_value = 2;
-    let mut iteration = 0;
-    while argument_value <= argv.len() - 1 || argument_key < argv.len() - 1 {
-        handle_argument(&argv[argument_key], &argv[argument_value], &mut arguments_hash_map)?;
-        argument_key += 2;
-        argument_value = argument_key + 1;
-        iteration += 1;
+    let mut argv_iter = env::args().skip(1); 
+    while let Some(arg) = argv_iter.next() {
+       handle_argument(&arg, &argv_iter.next().unwrap(), &mut arguments_hash_map)?; 
     }
 
     let arguments = transform_hash_in_struct(arguments_hash_map);
-
-    if iteration == 0 {
-        return Err(Error::new(ErrorKind::Other, "Unkown command"));
-    }
 
     Ok(arguments)
 }
